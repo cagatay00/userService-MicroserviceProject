@@ -6,6 +6,8 @@ import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+
+@Component
 public class JwtUtil {
 
     private static final String SECRET_KEY = "MY_SECRET_KEY_123";
@@ -43,9 +45,6 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
-
-
 
 
 }

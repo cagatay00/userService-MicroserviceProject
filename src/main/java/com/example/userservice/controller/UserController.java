@@ -1,10 +1,14 @@
 package com.example.userservice.controller;
 
+import com.example.userservice.dto.UserRegistrationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.userservice.entity.User;
 import com.example.userservice.service.UserService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,8 +20,13 @@ public class UserController {
     // Endpoint: Register a new user
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+
+        // Single call to service that returns both user + token
+        UserRegistrationResponse responseDTO = userService.createUserReturnToken(user);
+
+
+
+        return ResponseEntity.ok(responseDTO);
     }
 
     // Endpoint: Get user by username

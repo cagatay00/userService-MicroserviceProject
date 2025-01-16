@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.userservice.entity.User;
 import com.example.userservice.repository.UserRepository;
+import com.example.userservice.util.JwtUtil;
+import com.example.userservice.dto.UserRegistrationResponse;
 
 @Service
 public class UserService {
@@ -15,7 +17,11 @@ public class UserService {
     @Autowired
     private LogProducerService logProducerService;
 
-    public User createUser(User user) {
+    // add jwt utility
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    public UserRegistrationResponse createUserReturnToken(User user) {
         // 1) Save user to DB
         User savedUser = userRepository.save(user);
 
@@ -26,8 +32,11 @@ public class UserService {
                 "Created user: " + savedUser.getUsername() // "Message"
         );
 
-        // 3) Return the newly created user
-        return savedUser;
+        // 3) Generate a JWT token for this user
+        String token = jwtUtil.generateToken(savedUser.getUsername());
+
+        // 3) Build and return some custom response
+        return new UserRegistrationResponse(token, "User created successfully!");
     }
 
     public User getUserByUsername(String username) {
