@@ -10,7 +10,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false) // unique and not null
     private String username;
+
+    @Column(unique = true, nullable = false) // unique and not null
     private String password;
     private String email;
 

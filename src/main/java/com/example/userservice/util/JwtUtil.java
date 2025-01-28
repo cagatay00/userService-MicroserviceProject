@@ -4,47 +4,70 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
+import com.example.userservice.service.TokenBlacklistService;
 
 @Component
 public class JwtUtil {
 
+    // Must be stored in safe (örn. environment variable)
     private static final String SECRET_KEY = "MY_SECRET_KEY_123";
-    private static final long EXPIRATON_TIME = 86400000;
+    private static final long EXPIRATION_TIME = 86400000; // 1 gün (ms)
 
-    // generate token
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
+
+    // Token oluşturma metodu
     public String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(username)   // konu: tokenın ait olduğu kullanıcı
+                .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATON_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
-    // Tokendan username (subject) bilgisini çekmek
+    // Token’dan kullanıcı adını çıkarma
     public String extractUsername(String token) {
-        return getClaims(token).getSubject();
+        try {
+            Claims claims = getClaims(token);
+            System.out.println("Extracted username: " + claims.getSubject()); // Debugging
+            return claims.getSubject();
+        } catch (Exception e) {
+            System.out.println("Token extraction failed: " + e.getMessage()); // Debugging
+            return null;
+        }
     }
 
-    // token valid mi kontrol etmek vb.
+    // Token’ın geçerliliğini kontrol etme
     public boolean isTokenValid(String token) {
         try {
             Claims claims = getClaims(token);
-            // expiration ve subject gibi kontroller burada yapılabilir
             return !claims.getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
         }
     }
 
+    // Token’dan claim’leri çıkarma
     private Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY.getBytes(StandardCharsets.UTF_8))
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public Claims extractClaims(String token) {
+        if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            throw new IllegalArgumentException("Token is blacklisted.");
+        }
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
     }
-
-
 }
