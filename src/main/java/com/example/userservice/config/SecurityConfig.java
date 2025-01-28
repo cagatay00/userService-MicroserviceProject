@@ -2,6 +2,7 @@ package com.example.userservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,19 +33,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Disable csrf
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
 
                 // Configure authorization rules with lambdas
                 .authorizeHttpRequests(auth -> auth
                         // Let anyone call the register,login endpoint
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/users/signout").permitAll()
+                        .requestMatchers("/api/users/register", "/api/users/login", "/api/users/profile", "/api/users/signout" ).permitAll()
 
                         // Require authentication for the signout endpoint
-                        .requestMatchers("/api/users/profile").authenticated()
+                        //.requestMatchers().authenticated()
 
                         // Everything else requires authentication
-                        .anyRequest().authenticated()).formLogin(login -> login.disable()) // disable default login form
-                .httpBasic(httpBasic -> httpBasic.disable()); // Disable basic auth
+                        .anyRequest().authenticated()) //.formLogin(login -> login.disable()) // disable default login form
+                .httpBasic(AbstractHttpConfigurer::disable); // Disable basic auth
 
 
         // Build and return the SecurityFilterChain
