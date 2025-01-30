@@ -1,15 +1,12 @@
 package com.example.userservice.service;
 
-import com.example.userservice.dto.LoginRequest;
-import com.example.userservice.dto.LoginResponse;
+import com.example.userservice.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.userservice.entity.User;
 import com.example.userservice.repository.UserRepository;
 import com.example.userservice.util.JwtUtil;
-import com.example.userservice.dto.UserRegistrationResponse;
-import com.example.userservice.dto.UserDTO;
 
 @Service
 public class UserService {
@@ -76,6 +73,28 @@ public class UserService {
 
         // Return LoginResponse
         return new LoginResponse(token, "Login successful");
+    }
+
+    public boolean changePassword(ChangePasswordRequest request) {
+        // Find the user by username
+        User user = userRepository.findByUsername(request.getUsername());
+
+        if (user==null) {
+            throw new RuntimeException("User not found");
+        }
+
+        //Check if old password matches
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        // Encode and set the new password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        // Save updated user
+        userRepository.save(user);
+
+        return true;
     }
 
 

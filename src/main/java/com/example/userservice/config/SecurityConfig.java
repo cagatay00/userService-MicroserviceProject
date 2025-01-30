@@ -38,7 +38,8 @@ public class SecurityConfig {
                 // Configure authorization rules with lambdas
                 .authorizeHttpRequests(auth -> auth
                         // Let anyone call the register,login endpoint
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/users/profile", "/api/users/signout" ).permitAll()
+                        .requestMatchers("/api/users/register", "/api/users/login",
+                                "/api/users/profile", "/api/users/signout", "/api/users/change-password" ).permitAll()
 
                         // Require authentication for the signout endpoint
                         //.requestMatchers().authenticated()

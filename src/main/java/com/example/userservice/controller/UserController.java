@@ -1,15 +1,13 @@
 package com.example.userservice.controller;
 
-import com.example.userservice.dto.LoginRequest;
-import com.example.userservice.dto.LoginResponse;
+import com.example.userservice.dto.*;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.userservice.entity.User;
-import com.example.userservice.dto.UserRegistrationResponse;
 import com.example.userservice.service.UserService;
-import com.example.userservice.dto.UserDTO;
 import com.example.userservice.util.JwtUtil;
 import com.example.userservice.service.TokenBlacklistService;
 
@@ -65,6 +63,7 @@ public class UserController {
     }
 
 
+    /*
     // Endpoint: Get user by username
     @GetMapping("/{username}")
     public ResponseEntity<?> getUser(@PathVariable String username) {
@@ -75,6 +74,8 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+
+     */
 
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
@@ -88,4 +89,11 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(request);
+        return ResponseEntity.ok("Password changed succesfully");
+    }
+
 }

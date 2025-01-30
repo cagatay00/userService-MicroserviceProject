@@ -1,20 +1,35 @@
 package com.example.userservice.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "username")
+})
+
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Username cannot be empty")
     @Column(unique = true, nullable = false) // unique and not null
     private String username;
 
+    @NotBlank(message = "Password cannot be empty")
     @Column(unique = true, nullable = false) // unique and not null
     private String password;
+
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format. It should be something@something.something")
+    @Column(unique = true, nullable = false)
     private String email;
 
     public User() {
